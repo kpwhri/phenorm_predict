@@ -38,7 +38,7 @@ args <- parse_args(parser, convert_hyphens_to_underscores = TRUE)
 if (!dir.exists(args$analysis_data_dir)) {
   dir.create(args$analysis_data_dir, recursive = TRUE)
   txt_for_readme <- "# Analysis datasets\n\nThis folder contains analysis-ready datasets, resulting from processing raw data into PheNorm-ready form."
-  writeLines(txt_for_readme, con = paste0(args$analysis_data_dir, "README.md"))
+  writeLines(txt_for_readme, con = file.path(args$analysis_data_dir, "README.md"))
 }
 
 # process the dataset ---------------------------------------------------------
@@ -58,6 +58,9 @@ if (endsWith(args$data_name, ".rds")) {
 #                                               use_nonnormalized = args$use_nonnormalized,
 #                                               nonneg_id = args$nonneg_label)
 
+if ('FILTER_GROUP' %in% names(input_data)) {
+  input_data['FILTER_GROUP'] <- NULL
+}
 data_names <- names(input_data)
 cui_names <- data_names[grepl("C[0-9]", data_names, ignore.case = TRUE)]
 # note that "silver" is required to be in the variable name for all silver labels
@@ -76,8 +79,6 @@ processed_data <- process_data(dataset = input_data,
                                utilization_variable = args$utilization,
                                weight = args$weight)
 # drop variables in the training data with 0 variance/only one unique value, outside of the special columns
-all_num_unique <- lapply(processed_data$train, function(x) length(unique(x)))
-is_zero_one <- (all_num_unique == 0) | (all_num_unique == 1)
 all_data <- processed_data$all
 
 
@@ -88,7 +89,7 @@ all_data <- processed_data$all
 log_all <- apply_log_transformation(
   dataset = all_data,
   varnames = names(all_data)[!(
-    names(all_data) %in% c(args$gold_label, args$valid_label, args$study_id, args$weight)
+    names(all_data) %in% c(args$study_id, args$weight, "FILTER_GROUP")
   )],
   utilization_var = args$utilization
 )
@@ -99,8 +100,10 @@ analysis_data <- list(
 )
 # save analysis dataset and some data summary statistics -----------------------
 saveRDS(
-  analysis_data, file = paste0(
-    args$analysis_data_dir, args$analysis, "_analysis_data.rds"
+  analysis_data,
+  file = file.path(
+    args$analysis_data_dir,
+    paste0(args$analysis, "_analysis_data.rds")
   )
 )
 summary_stats <- tibble::tibble(

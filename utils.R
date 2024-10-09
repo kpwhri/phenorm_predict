@@ -460,10 +460,15 @@ predict.PheNorm <- function(phenorm_model = NULL, newdata = NULL,
   newmat <- as.matrix(newdata)
   silver_label_data <- newmat[, silver_labels, drop = FALSE]
   util <- newmat[, utilization]
+  PheNorm:::VTM(phenorm_model$alpha, nrow(newdata))
   normalized_silver_labels <- silver_label_data -
     PheNorm:::VTM(phenorm_model$alpha, nrow(newdata)) * util
   # also add features if we used them
   if (!is.null(features)) {
+    # if Error in newmat[, features, drop = FALSE] : subscript out of bounds
+    # trying figuring out what features you are missing and add them
+    #> print('Features missing in newmat')
+    #> print(features[!(features %in% colnames(newmat))])
     feature_data <- newmat[, features, drop = FALSE]
     normalized_data <- cbind(normalized_silver_labels, feature_data)
   } else {
