@@ -1,10 +1,20 @@
-# PheNorm
+# PheNorm Predict
 
-An R implementation of PheNorm.
+An R implementation of PheNorm for using an existing model.
 
 ## Overview
 
-The following is an R implementation of PheNorm. This repository has been set up to facilitate applying the PheNorm algorithm (rather than building). 
+The following is an R implementation of PheNorm. This repository has been set up to facilitate applying the PheNorm algorithm (rather than building).
+
+For developing a new model using PheNorm, consider instead following the steps in the [Sentinel Scalable NLP github](https://github.com/kpwhri/Sentinel-Scalable-NLP).
+
+## Prerequisites
+
+1. Create a cohort (e.g., using [SAS code](https://github.com/kpwhri/Sentinel-Scalable-NLP/tree/master/High-Sensitivity-Filter/Programs))
+2. Process the corpus output by `04_CLinical_Text_for_NLP.sas` with mml_utils using [configuration files](https://github.com/kpwhri/Sentinel-Scalable-NLP/tree/master/Prediction-Modeling/Anaphylaxis/NLP/configs)
+   * A step-by-step guide is provided in the [`mml_utils` documentation](https://github.com/kpwhri/mml_utils/tree/master/examples/phenorm)
+3. Run PheNorm using this code
+   * You will need a selected model and a cutoff.
 
 ## Applying PheNorm Algorithm
 
@@ -38,7 +48,7 @@ Run the `process_data.R` script to prepare and format the dataset. You will need
 
 Example command line (on Windows):
 ```commandline
-C:\R\bin\x64\R.exe ** -f C:/code/phenorm/process_data.R
+C:\R\bin\x64\R.exe ** -f C:/code/phenorm_predict/process_data.R
     --data-dir C:/data/05_Silver_Labels_and_Analytic_File
     --analysis-data-dir C:/data/06_R_PrepDatasets
     --data-name fe_nlp_modeling_file.sas7bdat
@@ -68,7 +78,7 @@ Run the `get_predicted_probabilities.R` script on the dataset output by `process
 
 Example command line (on Windows):
 ```commandline
-C:\R\bin\x64\R.exe ** -f C:/code/phenorm/get_predicted_probabilities.R
+C:\R\bin\x64\R.exe ** -f C:/code/phenorm_predict/get_predicted_probabilities.R
     --data-dir C:/data/06_R_PrepDatasets 
     --model C:/data/07_R_PredProbs/models/anaphylaxis_model.rds 
     --analysis cui_nlp_vars 
