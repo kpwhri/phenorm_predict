@@ -10,10 +10,12 @@ For developing a new model using PheNorm, consider instead following the steps i
 
 ## Prerequisites
 
-1. Create a cohort (e.g., using [SAS code](https://github.com/kpwhri/Sentinel-Scalable-NLP/tree/master/High-Sensitivity-Filter/Programs))
-2. Process the corpus output by `04_CLinical_Text_for_NLP.sas` with mml_utils using [configuration files](https://github.com/kpwhri/Sentinel-Scalable-NLP/tree/master/Prediction-Modeling/Anaphylaxis/NLP/configs)
+1. Create a cohort (e.g., using [SAS code](https://github.com/kpwhri/Sentinel-Scalable-NLP/tree/master/High-Sensitivity-Filter/Programs) from Sentinel Scalable NLP github)
+2. Process the corpus output by [`04_CLinical_Text_for_NLP.sas`](https://github.com/kpwhri/Sentinel-Scalable-NLP/tree/master/High-Sensitivity-Filter/Programs) with [mml_utils](https://github.com/kpwhri/mml_utils) using [configuration files](https://github.com/kpwhri/Sentinel-Scalable-NLP/tree/master/Prediction-Modeling/Anaphylaxis/NLP/configs)
    * A step-by-step guide is provided in the [`mml_utils` documentation](https://github.com/kpwhri/mml_utils/tree/master/examples/phenorm)
-3. Run PheNorm using this code
+3. Run PheNorm using the code in this repository
+   * You will need `R` installed, and the command line examples below use the `Rscript` executable.
+       * On Windows, this will be in, e.g., `C:\R\R-x.y.z\bin`.
    * You will need a selected model and a cutoff.
 
 ## Applying PheNorm Algorithm
@@ -32,7 +34,7 @@ Run the `process_data.R` script to prepare and format the dataset. You will need
   * The path to the folder containing the combined NLP and structured data output by the SAS processes.
   * By default, the folder is called `05_Silver_Labels_and_Analytic_File`.
 * `--analysis-data-dir ANALYSIS_DATA_DIR`
-  * The output folder for this analysis.
+  * The output folder where the analysis dataset (this post-processing) will be saved.
   * Perhaps use the name `06_R_PrepDatasets`
 * `--data-name SAS_DATASET`
   * This is the SAS dataset present in `DATA_DIR`.
@@ -46,9 +48,9 @@ Run the `process_data.R` script to prepare and format the dataset. You will need
   * The name of the field/variable/column containing the studyid
   * By default, this is `Obs_ID`
 
-Example command line (on Windows):
+Example command line:
 ```commandline
-C:\R\bin\x64\R.exe ** -f C:/code/phenorm_predict/process_data.R
+Rscript C:/code/phenorm_predict/process_data.R
     --data-dir C:/data/05_Silver_Labels_and_Analytic_File
     --analysis-data-dir C:/data/06_R_PrepDatasets
     --data-name fe_nlp_modeling_file.sas7bdat
@@ -62,23 +64,24 @@ C:\R\bin\x64\R.exe ** -f C:/code/phenorm_predict/process_data.R
 Run the `get_predicted_probabilities.R` script on the dataset output by `process_data.R` to generate a set of predicted probabilities.
 
 * `--data-dir DATA_DIR`
-  * Path to output directory when running `process_data.R`
+  * Path to directory where analysis dataset from `process_data.R` was saved
   * Suggested folder name was `06_R_PrepDatasets`
 * `--model MODEL_PATH`
-  * Path to RDS model for generating predicted probabilities
+  * Path to RDS model for generating predicted probabilities.
+  * The model for generating predicted probabilities needs to be the result of running the [Scalable NLP code](https://github.com/kpwhri/Sentinel-Scalable-NLP).
 * `--analysis cui_nlp_vars`
   * Name of output dataset from `process_data.R`
   * Suggested name was `cui_nlp_vars`
 * `--output-dir OUTPUT_DIR`
-  * Path to output directory
+  * Path to output directory, where predicted probabilities and histograms will be saved.
   * Considering giving the name `07_R_PredProbs`
 * `--study-id STUDYID`
     * The name of the field/variable/column containing the studyid
     * By default, this is `Obs_ID`
 
-Example command line (on Windows):
+Example command line:
 ```commandline
-C:\R\bin\x64\R.exe ** -f C:/code/phenorm_predict/get_predicted_probabilities.R
+Rscript C:/code/phenorm_predict/get_predicted_probabilities.R
     --data-dir C:/data/06_R_PrepDatasets 
     --model C:/data/07_R_PredProbs/models/anaphylaxis_model.rds 
     --analysis cui_nlp_vars 
